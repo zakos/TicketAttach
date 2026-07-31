@@ -9,6 +9,7 @@
 
 require_api( 'file_api.php' );
 require_api( 'bug_api.php' );
+require_api( 'utility_api.php' );
 
 class TicketAttachPlugin extends MantisPlugin {
 
@@ -59,6 +60,10 @@ class TicketAttachPlugin extends MantisPlugin {
 		$t_max_kib    = number_format( $t_max_size / 1024 );
 		$t_allowed    = config_get( 'allowed_files' );
 		$t_disallowed = config_get( 'disallowed_files' );
+		# A post_max_size az EGÉSZ POST törzsre vonatkozik, nem fájlonként. Több fájl
+		# feltöltésénél ezt külön is ki kell adnunk a kliensnek, mert a fenti
+		# $t_max_size már összemosta a fájlonkénti korláttal.
+		$t_post_max   = (int)ini_get_number( 'post_max_size' );
 
 		echo '<link rel="stylesheet" type="text/css" href="' . $t_css . '"/>';
 
@@ -79,6 +84,7 @@ class TicketAttachPlugin extends MantisPlugin {
 
 		echo '<div class="ticketattach-dropzone" '
 			. 'data-max-size="' . $t_max_size . '" '
+			. 'data-post-max="' . $t_post_max . '" '
 			. 'data-allowed="' . string_attribute( $t_allowed ) . '" '
 			. 'data-disallowed="' . string_attribute( $t_disallowed ) . '">';
 		echo '<i class="ace-icon fa fa-cloud-upload bigger-250 grey"></i>';

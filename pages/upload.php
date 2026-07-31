@@ -17,6 +17,13 @@ require_api( 'string_api.php' );
 
 auth_ensure_user_authenticated();
 
+# Ha a POST törzs meghaladja a php.ini post_max_size értékét, a PHP eldobja a
+# $_POST-ot ÉS a $_FILES-t is. Ilyenkor az alábbi CSRF ellenőrzés hasalna el egy
+# teljesen félrevezető üzenettel, ezért ezt az esetet előbb külön kezeljük.
+if( empty( $_POST ) && (int)( $_SERVER['CONTENT_LENGTH'] ?? 0 ) > 0 ) {
+	trigger_error( ERROR_FILE_TOO_BIG, ERROR );
+}
+
 form_security_validate( 'plugin_ticketattach_upload' );
 
 $f_bug_id = gpc_get_int( 'bug_id' );

@@ -100,6 +100,7 @@
 		var canEdit = (typeof DataTransfer !== 'undefined');
 
 		var maxSize = parseInt(zone.getAttribute('data-max-size'), 10) || 0;
+		var postMax = parseInt(zone.getAttribute('data-post-max'), 10) || 0;
 		var allowed = parseList(zone.getAttribute('data-allowed'));
 		var disallowed = parseList(zone.getAttribute('data-disallowed'));
 
@@ -169,8 +170,11 @@
 		function render() {
 			list.innerHTML = '';
 			var hasError = false;
+			var total = 0;
 
 			selected.forEach(function (f, idx) {
+				total += f.size;
+
 				var problem = validate(f);
 
 				var row = document.createElement('div');
@@ -200,8 +204,26 @@
 				if (problem) { hasError = true; }
 			});
 
+			// A fájlonkénti korlát nem véd a post_max_size ellen: az az EGÉSZ POST
+			// törzsre vonatkozik. Túllépve a PHP eldobja a $_POST-ot és a $_FILES-t
+			// is, azaz minden fájl elveszne - ezért itt fogjuk meg, küldés előtt.
+			var overflow = postMax > 0 && selected.length > 0
+				&& (total + postOverhead(selected.length)) > postMax;
+
+			if (overflow) {
+				var warn = document.createElement('div');
+				warn.className = 'ticketattach-fileitem ticketattach-fileitem-error';
+				var warnLabel = document.createElement('span');
+				warnLabel.className = 'ticketattach-filename';
+				warnLabel.textContent = 'A kiválasztott fájlok együtt túl nagyok: '
+					+ formatSize(total) + ' — a szerver egy feltöltésben legfeljebb '
+					+ formatSize(postMax) + ' méretet fogad';
+				warn.appendChild(warnLabel);
+				list.appendChild(warn);
+			}
+
 			if (submit) {
-				submit.disabled = (selected.length === 0) || hasError;
+				submit.disabled = (selected.length === 0) || hasError || overflow;
 			}
 		}
 
@@ -229,6 +251,14 @@
 		return s.split(',').map(function (x) {
 			return x.trim().toLowerCase().replace(/^\./, '');
 		}).filter(function (x) { return x.length; });
+	}
+
+	/*
+	 * A multipart törzs nagyobb a fájlok nyers összméreténél (határolók, fejlécek,
+	 * rejtett mezők), ezért a post_max_size ellenőrzésnél tartunk egy ráhagyást.
+	 */
+	function postOverhead(count) {
+		return 2048 + count * 512;
 	}
 
 	function formatSize(bytes) {
