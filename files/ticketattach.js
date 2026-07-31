@@ -128,28 +128,45 @@
 			}
 		});
 
-		['dragenter', 'dragover'].forEach(function (ev) {
-			zone.addEventListener(ev, function (e) {
-				e.preventDefault();
-				e.stopPropagation();
-				zone.classList.add('ticketattach-dragover');
+		// DataTransfer nélkül nem tudjuk visszaírni az input.files-t, így a drag & drop
+		// csak látszólag működne: a behúzott fájlok megjelennének a listán, de a form
+		// üresen menne el. Ilyenkor inkább be sem kötjük, és a szöveget is igazítjuk.
+		if (canEdit) {
+			['dragenter', 'dragover'].forEach(function (ev) {
+				zone.addEventListener(ev, function (e) {
+					e.preventDefault();
+					e.stopPropagation();
+					zone.classList.add('ticketattach-dragover');
+				});
 			});
-		});
-		['dragleave', 'drop'].forEach(function (ev) {
-			zone.addEventListener(ev, function (e) {
-				e.preventDefault();
-				e.stopPropagation();
-				zone.classList.remove('ticketattach-dragover');
+			['dragleave', 'drop'].forEach(function (ev) {
+				zone.addEventListener(ev, function (e) {
+					e.preventDefault();
+					e.stopPropagation();
+					zone.classList.remove('ticketattach-dragover');
+				});
 			});
-		});
 
-		zone.addEventListener('drop', function (e) {
-			if (e.dataTransfer && e.dataTransfer.files) {
-				addFiles(e.dataTransfer.files);
+			zone.addEventListener('drop', function (e) {
+				if (e.dataTransfer && e.dataTransfer.files) {
+					addFiles(e.dataTransfer.files);
+				}
+			});
+		} else {
+			var hint = zone.querySelector('.ticketattach-hint');
+			if (hint) {
+				hint.textContent = 'Kattints a feltöltendő fájlok kiválasztásához';
 			}
-		});
+		}
 
 		input.addEventListener('change', function () {
+			if (!canEdit) {
+				// Csak azt mutathatjuk, amit a böngésző ténylegesen el fog küldeni:
+				// a korábbi kiválasztást az input maga is eldobta.
+				selected = Array.prototype.slice.call(input.files);
+				render();
+				return;
+			}
 			addFiles(input.files);
 		});
 
