@@ -10,6 +10,7 @@
 require_api( 'file_api.php' );
 require_api( 'bug_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'print_api.php' );
 
 class TicketAttachPlugin extends MantisPlugin {
 
@@ -28,8 +29,25 @@ class TicketAttachPlugin extends MantisPlugin {
 		# Az EVENT_VIEW_BUG_EXTRA tisztán (a dobozokon kívül) hagy minket HTML-t kiírni;
 		# a tényleges pozíciót (a "Hibajegy részletei" doboz alá) a ticketattach.js állítja be.
 		return array(
-			'EVENT_VIEW_BUG_EXTRA' => 'show_upload_form',
+			'EVENT_VIEW_BUG_EXTRA'   => 'show_upload_form',
+			'EVENT_LAYOUT_RESOURCES' => 'add_resources',
 		);
+	}
+
+	/**
+	 * Stíluslap beszúrása a lap fejlécébe.
+	 *
+	 * A <link> a body-ban érvénytelen HTML és villanást okozhat; a core erre az
+	 * eseményre gyűjti a plugin-erőforrásokat (layout_page_header_end). Minden
+	 * lapon lefut, de a fájl pár kilobájt és a böngésző gyorsítótárazza.
+	 *
+	 * Az esemény EVENT_TYPE_OUTPUT, tehát a visszaadott sztringet írja ki.
+	 *
+	 * @return string
+	 */
+	function add_resources() {
+		return '<link rel="stylesheet" type="text/css" href="'
+			. plugin_file( 'ticketattach.css' ) . '"/>' . "\n";
 	}
 
 	/**
@@ -52,20 +70,16 @@ class TicketAttachPlugin extends MantisPlugin {
 		}
 
 		$t_action     = plugin_page( 'upload' );
-		$t_css        = plugin_file( 'ticketattach.css' );
 		$t_js         = plugin_file( 'ticketattach.js' );
 		# A TÉNYLEGES korlát: min( upload_max_filesize, post_max_size, $g_max_file_size ).
 		# Ugyanazt mutatjuk, amit a beépített (komment alatti) feltöltő is.
 		$t_max_size   = (int)file_get_max_file_size();
-		$t_max_kib    = number_format( $t_max_size / 1024 );
 		$t_allowed    = config_get( 'allowed_files' );
 		$t_disallowed = config_get( 'disallowed_files' );
 		# A post_max_size az EGÉSZ POST törzsre vonatkozik, nem fájlonként. Több fájl
 		# feltöltésénél ezt külön is ki kell adnunk a kliensnek, mert a fenti
 		# $t_max_size már összemosta a fájlonkénti korláttal.
 		$t_post_max   = (int)ini_get_number( 'post_max_size' );
-
-		echo '<link rel="stylesheet" type="text/css" href="' . $t_css . '"/>';
 
 		echo '<div id="ticketattach-wrap" class="col-md-12 col-xs-12">';
 		echo '<div class="space-10"></div>';
@@ -100,7 +114,10 @@ class TicketAttachPlugin extends MantisPlugin {
 
 		echo '<div class="space-6"></div>';
 		echo '<input type="submit" class="btn btn-primary btn-sm btn-white btn-round ticketattach-submit" value="Feltöltés a jegyhez"/>';
-		echo '<span class="small grey"> &#160; Maximális méret fájlonként: ' . $t_max_kib . ' KiB</span>';
+		# A core saját helperje: ugyanúgy formáz, mint a beépített feltöltő, és a
+		# title-ben a pontos bájtszámot is megmutatja.
+		echo '<span class="small grey"> &#160; Maximális méret fájlonként: </span>';
+		print_max_filesize( $t_max_size );
 		echo '</form>';
 
 		echo '</div></div>'; # widget-main, widget-body

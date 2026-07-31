@@ -123,9 +123,12 @@
 		var disallowed = parseList(zone.getAttribute('data-disallowed'));
 
 		zone.addEventListener('click', function (e) {
-			if (e.target !== input && !isRemoveButton(e.target)) {
-				input.click();
+			// A fájllistán belüli kattintás (fájlnév, törlő gomb) ne nyissa újra
+			// a fájlválasztót - csak a zóna üres része nyisson.
+			if (e.target === input || isRemoveButton(e.target) || list.contains(e.target)) {
+				return;
 			}
+			input.click();
 		});
 
 		// DataTransfer nélkül nem tudjuk visszaírni az input.files-t, így a drag & drop
@@ -169,6 +172,19 @@
 			}
 			addFiles(input.files);
 		});
+
+		// Dupla küldés elleni védelem: nagy fájloknál a feltöltés eltarthat, és a
+		// türelmetlen második kattintás mindent még egyszer felöltene. A letiltás
+		// setTimeout-ban megy, hogy a böngésző még az eredeti submitot elküldje.
+		var form = wrap.querySelector('form');
+		if (form && submit) {
+			form.addEventListener('submit', function () {
+				window.setTimeout(function () {
+					submit.disabled = true;
+					submit.value = 'Feltöltés folyamatban…';
+				}, 0);
+			});
+		}
 
 		render();
 
