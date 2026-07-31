@@ -212,9 +212,9 @@
 
 			if (overflow) {
 				var warn = document.createElement('div');
-				warn.className = 'ticketattach-fileitem ticketattach-fileitem-error';
+				warn.className = 'ticketattach-fileitem';
 				var warnLabel = document.createElement('span');
-				warnLabel.className = 'ticketattach-filename';
+				warnLabel.className = 'ticketattach-warning';
 				warnLabel.textContent = 'A kiválasztott fájlok együtt túl nagyok: '
 					+ formatSize(total) + ' — a szerver egy feltöltésben legfeljebb '
 					+ formatSize(postMax) + ' méretet fogad';

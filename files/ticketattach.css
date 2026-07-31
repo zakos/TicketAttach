@@ -84,6 +84,13 @@
 	white-space: nowrap;
 }
 
+/* Az összméret-figyelmeztetés hosszú, ezért tördelhető (nem ellipszises). */
+.ticketattach-warning {
+	white-space: normal;
+	color: #d15b47;
+	font-weight: bold;
+}
+
 .ticketattach-remove {
 	flex: 0 0 auto;
 	border: none;
