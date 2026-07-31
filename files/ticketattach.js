@@ -48,7 +48,7 @@
 		}
 
 		window.setTimeout(function () {
-			var target = document.querySelector('.bug-attach-tags');
+			var target = findAttachmentsCell();
 			if (!target) {
 				// nincs csatolmány szekció -> a felső doboz tetejére
 				target = document.querySelector('.widget-box.widget-color-blue2');
@@ -65,6 +65,24 @@
 			var newUrl = window.location.pathname + (q ? '?' + q : '') + window.location.hash;
 			window.history.replaceState({}, document.title, newUrl);
 		}
+	}
+
+	/*
+	 * A "Csatolt fájlok" cella megkeresése.
+	 *
+	 * A core a bug-attach-tags osztályt KÉT soron is használja (bug_view_inc.php):
+	 * előbb a "Címkék hozzáadása" űrlapon, csak utána a csatolmányokon. Egy sima
+	 * querySelector ezért a címke-űrlapot találná el. A csatolmányokat a core
+	 * .well dobozokban rajzolja ki (print_bug_attachment), erre szűrünk, hátulról.
+	 */
+	function findAttachmentsCell() {
+		var cells = document.querySelectorAll('td.bug-attach-tags');
+		for (var i = cells.length - 1; i >= 0; i--) {
+			if (cells[i].querySelector('.well')) {
+				return cells[i];
+			}
+		}
+		return null;
 	}
 
 	function setupDropzone(wrap) {
