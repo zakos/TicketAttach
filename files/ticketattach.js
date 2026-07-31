@@ -189,7 +189,7 @@
 					var del = document.createElement('button');
 					del.type = 'button';
 					del.className = 'ticketattach-remove';
-					del.setAttribute('aria-label', 'Eltavolitas');
+					del.setAttribute('aria-label', 'Eltávolítás: ' + f.name);
 					del.setAttribute('title', 'Eltávolítás');
 					del.innerHTML = '&times;';
 					del.addEventListener('click', function (e) {
@@ -229,14 +229,14 @@
 
 		function validate(f) {
 			if (maxSize > 0 && f.size > maxSize) {
-				return 'tul nagy (max ' + formatSize(maxSize) + ')';
+				return 'túl nagy (max ' + formatSize(maxSize) + ')';
 			}
 			var ext = (f.name.indexOf('.') !== -1 ? f.name.split('.').pop() : '').toLowerCase();
 			if (disallowed.length && disallowed.indexOf(ext) !== -1) {
-				return 'tiltott tipus (.' + ext + ')';
+				return 'tiltott típus (.' + ext + ')';
 			}
 			if (allowed.length && allowed.indexOf(ext) === -1) {
-				return 'nem engedelyezett tipus (.' + ext + ')';
+				return 'nem engedélyezett típus (.' + ext + ')';
 			}
 			return null;
 		}

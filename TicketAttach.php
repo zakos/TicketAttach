@@ -89,7 +89,8 @@ class TicketAttachPlugin extends MantisPlugin {
 			. 'data-disallowed="' . string_attribute( $t_disallowed ) . '">';
 		echo '<i class="ace-icon fa fa-cloud-upload bigger-250 grey"></i>';
 		echo '<div class="ticketattach-hint">Húzd ide a feltöltendő fájlokat, vagy kattints a kiválasztáshoz</div>';
-		echo '<input type="file" name="ufile[]" multiple="multiple"/>';
+		echo '<input type="file" name="ufile[]" multiple="multiple" '
+			. 'aria-label="Feltöltendő fájlok kiválasztása"/>';
 		echo '<div class="ticketattach-filelist"></div>';
 		echo '</div>';
 
