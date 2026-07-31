@@ -28,6 +28,10 @@ Tested with MantisBT 2.28.
 - Client-side validation: file size and extension are checked against the
   server configuration (`allowed_files` / `disallowed_files`), the submit button
   stays disabled while any file is invalid.
+- The combined size of the selection is checked against `post_max_size` too —
+  exceeding it would make PHP discard the whole request and lose every file.
+- If some files are rejected, the successful ones are still attached and a
+  result page lists each rejected file with its reason.
 - The upload box is positioned right below the *Issue Details* box by the JS.
 - After a successful upload the page scrolls back to the **Attachments** section.
 - Permissions follow the MantisBT built-in rules (`file_allow_bug_upload()`),
@@ -82,9 +86,9 @@ limit the built-in uploader enforces.
 
 | File | Role |
 |---|---|
-| `TicketAttach.php` | Plugin class. Registers on the `EVENT_VIEW_BUG_EXTRA` hook and renders the upload form. Checks `file_allow_bug_upload()` and `bug_is_readonly()` before printing anything. |
-| `pages/upload.php` | Upload handler, reachable at `plugin.php?page=TicketAttach/upload`. Validates the CSRF token, re-checks permissions, transposes the `ufile[]` array with `helper_array_transpose()` and calls `file_add()` per file. |
-| `files/ticketattach.js` | Moves the box below the *Issue Details* widget, drives the drag & drop UI, validates size/extension client-side, and handles the post-upload scroll via the `ta_scroll` query parameter. |
+| `TicketAttach.php` | Plugin class. Renders the upload form on `EVENT_VIEW_BUG_EXTRA` and adds the stylesheet to the page head on `EVENT_LAYOUT_RESOURCES`. Checks `file_allow_bug_upload()` and `bug_is_readonly()` before printing anything. |
+| `pages/upload.php` | Upload handler, reachable at `plugin.php?page=TicketAttach/upload`. Validates the CSRF token, re-checks permissions, transposes the `ufile[]` array with `helper_array_transpose()` and calls `file_add()` per file, catching failures individually so one bad file cannot abort the rest. |
+| `files/ticketattach.js` | Moves the box below the *Issue Details* widget, drives the drag & drop UI, validates size/extension and the combined upload size client-side, and handles the post-upload scroll via the `ta_scroll` query parameter. |
 | `files/ticketattach.css` | Styling of the dropzone, the file list and the remove buttons. |
 
 The key detail is in `upload.php`: `file_add( $bug_id, $file, 'bug' )` is called
@@ -142,6 +146,10 @@ MantisBT 2.28-cal tesztelve.
 - Kliensoldali ellenőrzés: méret és kiterjesztés a szerver beállításai szerint
   (`allowed_files` / `disallowed_files`); hibás fájl esetén a küldés gomb tiltott
   marad.
+- A kiválasztás összmérete a `post_max_size`-hoz is mérve — túllépve a PHP az
+  egész kérést eldobná, és minden fájl elveszne.
+- Ha egyes fájlok elakadnak, a többi ettől még felkerül, és egy eredményoldal
+  fájlonként kiírja az elutasítás okát.
 - A feltöltő dobozt a JS közvetlenül a *Hibajegy részletei* doboz alá helyezi.
 - Sikeres feltöltés után az oldal a **Csatolt fájlok** szekcióhoz görget.
 - A jogosultságok a MantisBT beépített szabályait követik
@@ -197,9 +205,9 @@ amit a beépített feltöltő is érvényesít.
 
 | Fájl | Szerep |
 |---|---|
-| `TicketAttach.php` | A plugin osztály. Az `EVENT_VIEW_BUG_EXTRA` hookra iratkozik fel, és kiírja a feltöltő űrlapot. Kiírás előtt ellenőrzi a `file_allow_bug_upload()` és `bug_is_readonly()` feltételeket. |
-| `pages/upload.php` | A feltöltés-feldolgozó, elérhető a `plugin.php?page=TicketAttach/upload` címen. Ellenőrzi a CSRF tokent, újraellenőrzi a jogosultságot, a `ufile[]` tömböt a `helper_array_transpose()`-zal bontja fájlonkénti tömbökre, majd fájlonként hívja a `file_add()`-et. |
-| `files/ticketattach.js` | A dobozt a *Hibajegy részletei* widget alá mozgatja, kezeli a drag & drop felületet, kliensoldalon ellenőrzi a méretet/kiterjesztést, és a `ta_scroll` query paraméter alapján görget feltöltés után. |
+| `TicketAttach.php` | A plugin osztály. Az `EVENT_VIEW_BUG_EXTRA`-ra kiírja a feltöltő űrlapot, az `EVENT_LAYOUT_RESOURCES`-ra pedig a stíluslapot teszi a lap fejlécébe. Kiírás előtt ellenőrzi a `file_allow_bug_upload()` és `bug_is_readonly()` feltételeket. |
+| `pages/upload.php` | A feltöltés-feldolgozó, elérhető a `plugin.php?page=TicketAttach/upload` címen. Ellenőrzi a CSRF tokent, újraellenőrzi a jogosultságot, a `ufile[]` tömböt a `helper_array_transpose()`-zal bontja fájlonkénti tömbökre, majd fájlonként hívja a `file_add()`-et — a hibákat egyesével elkapva, hogy egy rossz fájl ne szakítsa meg a többit. |
+| `files/ticketattach.js` | A dobozt a *Hibajegy részletei* widget alá mozgatja, kezeli a drag & drop felületet, kliensoldalon ellenőrzi a méretet, a kiterjesztést és a feltöltés összméretét, és a `ta_scroll` query paraméter alapján görget feltöltés után. |
 | `files/ticketattach.css` | A dropzone, a fájllista és a törlő gombok megjelenése. |
 
 A lényegi részlet az `upload.php`-ban van: a `file_add( $bug_id, $file, 'bug' )`
