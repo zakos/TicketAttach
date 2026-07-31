@@ -21,23 +21,41 @@
 		maybeScrollToAttachments();
 	}
 
-	/* A feltöltőt a "Hibajegy részletei" (első kék) doboz külső oszlopa után helyezi. */
+	/* A feltöltőt a "Hibajegy részletei" doboz külső oszlopa után helyezi. */
 	function relocate(wrap) {
-		var boxes = document.querySelectorAll('.widget-box.widget-color-blue2');
-		var firstBox = null;
-		for (var i = 0; i < boxes.length; i++) {
-			if (!wrap.contains(boxes[i])) {
-				firstBox = boxes[i];
-				break;
-			}
-		}
-		if (!firstBox) {
+		var box = findDetailsBox(wrap);
+		if (!box) {
 			return;
 		}
-		var col = firstBox.closest('.col-md-12') || firstBox.parentNode;
+		var col = box.closest('.col-md-12') || box.parentNode;
 		if (col && col.parentNode) {
 			col.parentNode.insertBefore(wrap, col.nextSibling);
 		}
+	}
+
+	/*
+	 * A "Hibajegy részletei" doboz megkeresése.
+	 *
+	 * Az "első blue2 widget" heurisztika eltéved, ha egy másik plugin egy korábbi
+	 * hookon kirak egy ilyen dobozt. A core-ban viszont a jegy-részletek az egyetlen
+	 * id NÉLKÜLI blue2 widget (a #monitors, #history, #relationships mind kap id-t),
+	 * ezért a jegyazonosító cellájából kapaszkodunk felfelé - az mindig kirajzolódik.
+	 */
+	function findDetailsBox(wrap) {
+		var idCell = document.querySelector('td.bug-id');
+		var box = idCell && idCell.closest('.widget-box');
+		if (box && !wrap.contains(box)) {
+			return box;
+		}
+
+		// tartalék: az első blue2 doboz a feltöltőn kívül
+		var boxes = document.querySelectorAll('.widget-box.widget-color-blue2');
+		for (var i = 0; i < boxes.length; i++) {
+			if (!wrap.contains(boxes[i])) {
+				return boxes[i];
+			}
+		}
+		return null;
 	}
 
 	/* Feltöltés után: görgetés a "Csatolt fájlok" szekcióhoz, majd a query param eltávolítása. */
