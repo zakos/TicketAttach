@@ -18,7 +18,7 @@ class TicketAttachPlugin extends MantisPlugin {
 		$this->name        = 'Ticket Attach';
 		$this->description  = 'Jegy-szintű (megjegyzéshez nem kötött) fájlfeltöltés a jegy nézetében, az 1.2.x viselkedés szerint. Drag & drop, kliensoldali ellenőrzés.';
 		$this->page         = '';
-		$this->version      = '1.2.1';
+		$this->version      = '1.2.2';
 		$this->requires     = array( 'MantisCore' => '2.0.0' );
 		$this->author       = 'Laurel Kft.';
 		$this->contact      = '';

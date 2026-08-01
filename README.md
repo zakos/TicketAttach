@@ -117,7 +117,7 @@ multi-language support).
 | | |
 |---|---|
 | Name | Ticket Attach |
-| Version | 1.2.1 |
+| Version | 1.2.2 |
 | Author | Laurel Kft. |
 | Requires | MantisCore 2.0.0 |
 
@@ -236,6 +236,6 @@ valódi többnyelvűség kell).
 | | |
 |---|---|
 | Név | Ticket Attach |
-| Verzió | 1.2.1 |
+| Verzió | 1.2.2 |
 | Szerző | Laurel Kft. |
 | Függőség | MantisCore 2.0.0 |
