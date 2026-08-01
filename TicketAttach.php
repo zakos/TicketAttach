@@ -98,7 +98,13 @@ class TicketAttachPlugin extends MantisPlugin {
 		# és a core sem olvassa. Így viszont a PHP a túl nagy fájlt már feldolgozás
 		# előtt UPLOAD_ERR_FORM_SIZE-zal jelöli, amit az upload.php fájlonként jelent.
 		# A mezőnek meg kell előznie a file inputot, különben hatástalan.
-		echo '<input type="hidden" name="MAX_FILE_SIZE" value="' . $t_max_size . '"/>';
+		#
+		# Csak pozitív értékkel írjuk ki: a file_get_max_file_size() 0-t ad, ha a
+		# php.ini post_max_size-a 0 (korlátlan) vagy a $g_max_file_size 0 - ilyenkor
+		# a MAX_FILE_SIZE="0" MINDEN nem üres fájlt elutasíttatna a PHP-vel.
+		if( $t_max_size > 0 ) {
+			echo '<input type="hidden" name="MAX_FILE_SIZE" value="' . $t_max_size . '"/>';
+		}
 
 		echo '<div class="ticketattach-dropzone" '
 			. 'data-max-size="' . $t_max_size . '" '
