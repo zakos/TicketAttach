@@ -28,6 +28,10 @@ Tested with MantisBT 2.28.
 - Client-side validation: file size and extension are checked against the
   server configuration (`allowed_files` / `disallowed_files`), the submit button
   stays disabled while any file is invalid.
+- The combined size of the selection is checked against `post_max_size` too —
+  exceeding it would make PHP discard the whole request and lose every file.
+- If some files are rejected, the successful ones are still attached and a
+  result page lists each rejected file with its reason.
 - The upload box is positioned right below the *Issue Details* box by the JS.
 - After a successful upload the page scrolls back to the **Attachments** section.
 - Permissions follow the MantisBT built-in rules (`file_allow_bug_upload()`),
@@ -39,7 +43,7 @@ Tested with MantisBT 2.28.
 
 | | |
 |---|---|
-| MantisBT | 2.0.0 or newer (developed against 2.28) |
+| MantisBT | 2.26.0 or newer (developed against 2.28) — the top-level attachments row the plugin relies on was only reinstated in the core in 2.26 |
 | PHP | whatever your MantisBT instance requires |
 | Browser | `DataTransfer` support for per-file removal (all modern browsers) |
 
@@ -57,6 +61,9 @@ File uploads must be enabled in MantisBT itself
    ├── files/
    │   ├── ticketattach.css
    │   └── ticketattach.js
+   ├── lang/
+   │   ├── strings_english.txt
+   │   └── strings_hungarian.txt
    └── pages/
        └── upload.php
    ```
@@ -82,9 +89,9 @@ limit the built-in uploader enforces.
 
 | File | Role |
 |---|---|
-| `TicketAttach.php` | Plugin class. Registers on the `EVENT_VIEW_BUG_EXTRA` hook and renders the upload form. Checks `file_allow_bug_upload()` and `bug_is_readonly()` before printing anything. |
-| `pages/upload.php` | Upload handler, reachable at `plugin.php?page=TicketAttach/upload`. Validates the CSRF token, re-checks permissions, transposes the `ufile[]` array with `helper_array_transpose()` and calls `file_add()` per file. |
-| `files/ticketattach.js` | Moves the box below the *Issue Details* widget, drives the drag & drop UI, validates size/extension client-side, and handles the post-upload scroll via the `ta_scroll` query parameter. |
+| `TicketAttach.php` | Plugin class. Renders the upload form on `EVENT_VIEW_BUG_EXTRA` and adds the stylesheet to the page head on `EVENT_LAYOUT_RESOURCES`. Checks `file_allow_bug_upload()` and `bug_is_readonly()` before printing anything. |
+| `pages/upload.php` | Upload handler, reachable at `plugin.php?page=TicketAttach/upload`. Validates the CSRF token, re-checks permissions, transposes the `ufile[]` array with `helper_array_transpose()` and calls `file_add()` per file, catching failures individually so one bad file cannot abort the rest. |
+| `files/ticketattach.js` | Moves the box below the *Issue Details* widget, drives the drag & drop UI, validates size/extension and the combined upload size client-side, and handles the post-upload scroll via the `ta_scroll` query parameter. |
 | `files/ticketattach.css` | Styling of the dropzone, the file list and the remove buttons. |
 
 The key detail is in `upload.php`: `file_add( $bug_id, $file, 'bug' )` is called
@@ -103,19 +110,25 @@ attachment binds to the issue itself.
 
 ### Localisation
 
-The user-facing strings are currently Hungarian, hard-coded in
-`TicketAttach.php` and `ticketattach.js`. To translate, edit those strings
-directly (or wire them up to MantisBT's `lang_get()` if you need real
-multi-language support).
+All user-facing strings live in `lang/`, following the MantisBT plugin
+convention (`$s_plugin_TicketAttach_<key>`). English and Hungarian ship with
+the plugin; to add a language, copy `lang/strings_english.txt` to
+`lang/strings_<language>.txt` and translate the values — MantisBT picks the
+file matching the user's language and falls back to English.
+
+The client-side strings are the same mechanism: `TicketAttach.php` passes them
+to the JavaScript as JSON in the dropzone's `data-strings` attribute, so there
+is nothing to translate inside `ticketattach.js`. `%s` in a string is a
+placeholder filled in at runtime.
 
 ### Metadata
 
 | | |
 |---|---|
 | Name | Ticket Attach |
-| Version | 1.2.1 |
+| Version | 1.3.0 |
 | Author | Laurel Kft. |
-| Requires | MantisCore 2.0.0 |
+| Requires | MantisCore 2.26.0 |
 
 ---
 
@@ -142,6 +155,10 @@ MantisBT 2.28-cal tesztelve.
 - Kliensoldali ellenőrzés: méret és kiterjesztés a szerver beállításai szerint
   (`allowed_files` / `disallowed_files`); hibás fájl esetén a küldés gomb tiltott
   marad.
+- A kiválasztás összmérete a `post_max_size`-hoz is mérve — túllépve a PHP az
+  egész kérést eldobná, és minden fájl elveszne.
+- Ha egyes fájlok elakadnak, a többi ettől még felkerül, és egy eredményoldal
+  fájlonként kiírja az elutasítás okát.
 - A feltöltő dobozt a JS közvetlenül a *Hibajegy részletei* doboz alá helyezi.
 - Sikeres feltöltés után az oldal a **Csatolt fájlok** szekcióhoz görget.
 - A jogosultságok a MantisBT beépített szabályait követik
@@ -153,7 +170,7 @@ MantisBT 2.28-cal tesztelve.
 
 | | |
 |---|---|
-| MantisBT | 2.0.0 vagy újabb (2.28-ra fejlesztve) |
+| MantisBT | 2.26.0 vagy újabb (2.28-ra fejlesztve) — a felső csatolmány-sort, amire a plugin épül, a core csak 2.26 óta rajzolja ki |
 | PHP | amit a MantisBT példány megkövetel |
 | Böngésző | `DataTransfer` támogatás a fájlonkénti törléshez (minden modern böngésző) |
 
@@ -172,6 +189,9 @@ A fájlfeltöltésnek engedélyezettnek kell lennie magában a MantisBT-ben
    ├── files/
    │   ├── ticketattach.css
    │   └── ticketattach.js
+   ├── lang/
+   │   ├── strings_english.txt
+   │   └── strings_hungarian.txt
    └── pages/
        └── upload.php
    ```
@@ -197,9 +217,9 @@ amit a beépített feltöltő is érvényesít.
 
 | Fájl | Szerep |
 |---|---|
-| `TicketAttach.php` | A plugin osztály. Az `EVENT_VIEW_BUG_EXTRA` hookra iratkozik fel, és kiírja a feltöltő űrlapot. Kiírás előtt ellenőrzi a `file_allow_bug_upload()` és `bug_is_readonly()` feltételeket. |
-| `pages/upload.php` | A feltöltés-feldolgozó, elérhető a `plugin.php?page=TicketAttach/upload` címen. Ellenőrzi a CSRF tokent, újraellenőrzi a jogosultságot, a `ufile[]` tömböt a `helper_array_transpose()`-zal bontja fájlonkénti tömbökre, majd fájlonként hívja a `file_add()`-et. |
-| `files/ticketattach.js` | A dobozt a *Hibajegy részletei* widget alá mozgatja, kezeli a drag & drop felületet, kliensoldalon ellenőrzi a méretet/kiterjesztést, és a `ta_scroll` query paraméter alapján görget feltöltés után. |
+| `TicketAttach.php` | A plugin osztály. Az `EVENT_VIEW_BUG_EXTRA`-ra kiírja a feltöltő űrlapot, az `EVENT_LAYOUT_RESOURCES`-ra pedig a stíluslapot teszi a lap fejlécébe. Kiírás előtt ellenőrzi a `file_allow_bug_upload()` és `bug_is_readonly()` feltételeket. |
+| `pages/upload.php` | A feltöltés-feldolgozó, elérhető a `plugin.php?page=TicketAttach/upload` címen. Ellenőrzi a CSRF tokent, újraellenőrzi a jogosultságot, a `ufile[]` tömböt a `helper_array_transpose()`-zal bontja fájlonkénti tömbökre, majd fájlonként hívja a `file_add()`-et — a hibákat egyesével elkapva, hogy egy rossz fájl ne szakítsa meg a többit. |
+| `files/ticketattach.js` | A dobozt a *Hibajegy részletei* widget alá mozgatja, kezeli a drag & drop felületet, kliensoldalon ellenőrzi a méretet, a kiterjesztést és a feltöltés összméretét, és a `ta_scroll` query paraméter alapján görget feltöltés után. |
 | `files/ticketattach.css` | A dropzone, a fájllista és a törlő gombok megjelenése. |
 
 A lényegi részlet az `upload.php`-ban van: a `file_add( $bug_id, $file, 'bug' )`
@@ -218,16 +238,22 @@ marad, és a csatolmány magához a jegyhez kötődik.
 
 ### Honosítás
 
-A felületi szövegek jelenleg magyarul, fixen be vannak égetve a
-`TicketAttach.php` és a `ticketattach.js` fájlokba. Fordításhoz ezeket a
-sztringeket kell átírni (vagy a MantisBT `lang_get()` mechanizmusára kötni, ha
-valódi többnyelvűség kell).
+Minden felületi szöveg a `lang/` könyvtárban van, a MantisBT plugin
+konvenciója szerint (`$s_plugin_TicketAttach_<kulcs>`). Angol és magyar
+alapból része a pluginnak; új nyelvhez másold a `lang/strings_english.txt`-t
+`lang/strings_<nyelv>.txt` néven, és fordítsd le az értékeket — a MantisBT a
+felhasználó nyelvéhez tartozó fájlt tölti be, hiány esetén az angolt.
+
+A kliensoldali szövegek ugyanezen a mechanizmuson mennek: a `TicketAttach.php`
+JSON-ként adja át őket a JavaScriptnek a dropzone `data-strings` attribútumában,
+tehát a `ticketattach.js`-ben nincs fordítanivaló. A sztringekben lévő `%s`
+futásidőben kitöltött helyőrző.
 
 ### Metaadatok
 
 | | |
 |---|---|
 | Név | Ticket Attach |
-| Verzió | 1.2.1 |
+| Verzió | 1.3.0 |
 | Szerző | Laurel Kft. |
-| Függőség | MantisCore 2.0.0 |
+| Függőség | MantisCore 2.26.0 |
