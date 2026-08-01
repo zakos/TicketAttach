@@ -1,0 +1,33 @@
+<?php
+# TicketAttach - magyar szövegek.
+#
+# A változónevek a MantisBT plugin konvencióját követik:
+# $s_plugin_<basename>_<kulcs>, ahol a basename a plugin könyvtárneve.
+#
+# A "(JS)" jelölésű szövegeket a ticketattach.js kapja meg a data-strings
+# attribútumon keresztül; a bennük lévő %s helyőrzőket a kliens tölti ki.
+
+$s_plugin_TicketAttach_title       = 'Ticket Attach';
+$s_plugin_TicketAttach_description = 'Jegy-szintű (megjegyzéshez nem kötött) fájlfeltöltés a jegy nézetében, az 1.2.x viselkedés szerint. Drag & drop, kliensoldali ellenőrzés.';
+
+# Feltöltő űrlap
+$s_plugin_TicketAttach_attach_file_to_issue = 'Fájl csatolása a jegyhez';
+$s_plugin_TicketAttach_dropzone_hint        = 'Húzd ide a feltöltendő fájlokat, vagy kattints a kiválasztáshoz';
+$s_plugin_TicketAttach_select_files         = 'Feltöltendő fájlok kiválasztása';
+$s_plugin_TicketAttach_upload_button        = 'Feltöltés a jegyhez';
+$s_plugin_TicketAttach_max_size_per_file    = 'Maximális méret fájlonként:';
+
+# Feltöltés eredménye oldal
+$s_plugin_TicketAttach_upload_failed_title = 'Nem sikerült minden fájl csatolása';
+$s_plugin_TicketAttach_uploaded_count      = 'Sikeresen csatolt fájlok: %s';
+$s_plugin_TicketAttach_failed_list_intro   = 'Az alábbi fájlokat nem sikerült csatolni:';
+
+# Kliensoldali szövegek (JS)
+$s_plugin_TicketAttach_dropzone_hint_no_dnd = 'Kattints a feltöltendő fájlok kiválasztásához';
+$s_plugin_TicketAttach_uploading            = 'Feltöltés folyamatban…';
+$s_plugin_TicketAttach_remove               = 'Eltávolítás';
+$s_plugin_TicketAttach_remove_file          = 'Eltávolítás: %s';
+$s_plugin_TicketAttach_file_too_big         = 'túl nagy (max %s)';
+$s_plugin_TicketAttach_type_disallowed      = 'tiltott típus (.%s)';
+$s_plugin_TicketAttach_type_not_allowed     = 'nem engedélyezett típus (.%s)';
+$s_plugin_TicketAttach_total_too_big        = 'A kiválasztott fájlok együtt túl nagyok: %s — a szerver egy feltöltésben legfeljebb %s méretet fogad';

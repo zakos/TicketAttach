@@ -124,6 +124,15 @@
 		const allowed = parseList(zone.getAttribute('data-allowed'));
 		const disallowed = parseList(zone.getAttribute('data-disallowed'));
 
+		// A szövegeket a szervertől kapjuk (plugin_lang_get), mert a JS nem éri el a
+		// MantisBT nyelvi rétegét. Hiányzó kulcsnál magát a kulcsot adjuk vissza:
+		// látható, hogy valami hiányzik, de a felület használható marad.
+		const strings = parseStrings(zone.getAttribute('data-strings'));
+		const t = (key, ...args) => {
+			let i = 0;
+			return (strings[key] || key).replace(/%s/g, () => args[i++]);
+		};
+
 		zone.addEventListener('click', (e) => {
 			// A fájllistán belüli kattintás (fájlnév, törlő gomb) ne nyissa újra
 			// a fájlválasztót - csak a zóna üres része nyisson.
@@ -160,7 +169,7 @@
 		} else {
 			const hint = zone.querySelector('.ticketattach-hint');
 			if (hint) {
-				hint.textContent = 'Kattints a feltöltendő fájlok kiválasztásához';
+				hint.textContent = t('hint_no_dnd');
 			}
 		}
 
@@ -185,7 +194,7 @@
 			form.addEventListener('submit', () => {
 				window.setTimeout(() => {
 					submit.disabled = true;
-					submit.value = 'Feltöltés folyamatban…';
+					submit.value = t('uploading');
 				}, 0);
 			});
 
@@ -253,8 +262,8 @@
 					const del = document.createElement('button');
 					del.type = 'button';
 					del.className = 'ticketattach-remove';
-					del.setAttribute('aria-label', `Eltávolítás: ${f.name}`);
-					del.setAttribute('title', 'Eltávolítás');
+					del.setAttribute('aria-label', t('remove_file', f.name));
+					del.setAttribute('title', t('remove'));
 					del.textContent = '×';
 					del.addEventListener('click', (e) => {
 						e.preventDefault();
@@ -281,8 +290,7 @@
 				warn.className = 'ticketattach-fileitem';
 				const warnLabel = document.createElement('span');
 				warnLabel.className = 'ticketattach-warning';
-				warnLabel.textContent = `A kiválasztott fájlok együtt túl nagyok: ${formatSize(total)}`
-					+ ` — a szerver egy feltöltésben legfeljebb ${formatSize(postMax)} méretet fogad`;
+				warnLabel.textContent = t('total_too_big', formatSize(total), formatSize(postMax));
 				warn.appendChild(warnLabel);
 				list.appendChild(warn);
 			}
@@ -294,14 +302,14 @@
 
 		function validate(f) {
 			if (maxSize > 0 && f.size > maxSize) {
-				return `túl nagy (max ${formatSize(maxSize)})`;
+				return t('file_too_big', formatSize(maxSize));
 			}
 			const ext = (f.name.includes('.') ? f.name.split('.').pop() : '').toLowerCase();
 			if (disallowed.length && disallowed.includes(ext)) {
-				return `tiltott típus (.${ext})`;
+				return t('type_disallowed', ext);
 			}
 			if (allowed.length && !allowed.includes(ext)) {
-				return `nem engedélyezett típus (.${ext})`;
+				return t('type_not_allowed', ext);
 			}
 			return null;
 		}
@@ -309,6 +317,18 @@
 
 	function isRemoveButton(el) {
 		return el && el.classList && el.classList.contains('ticketattach-remove');
+	}
+
+	/* A szerver által JSON-ként átadott szótár beolvasása. */
+	function parseStrings(raw) {
+		if (!raw) {
+			return {};
+		}
+		try {
+			return JSON.parse(raw);
+		} catch (e) {
+			return {};
+		}
 	}
 
 	function parseList(s) {

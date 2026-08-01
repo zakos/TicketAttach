@@ -15,8 +15,8 @@ require_api( 'print_api.php' );
 class TicketAttachPlugin extends MantisPlugin {
 
 	function register() {
-		$this->name        = 'Ticket Attach';
-		$this->description  = 'Jegy-szintű (megjegyzéshez nem kötött) fájlfeltöltés a jegy nézetében, az 1.2.x viselkedés szerint. Drag & drop, kliensoldali ellenőrzés.';
+		$this->name         = plugin_lang_get( 'title' );
+		$this->description  = plugin_lang_get( 'description' );
 		$this->page         = '';
 		$this->version      = '1.2.2';
 		$this->requires     = array( 'MantisCore' => '2.0.0' );
@@ -81,12 +81,27 @@ class TicketAttachPlugin extends MantisPlugin {
 		# $t_max_size már összemosta a fájlonkénti korláttal.
 		$t_post_max   = (int)ini_get_number( 'post_max_size' );
 
+		# A kliensoldali szövegek: a plugin_lang_get() csak PHP-ből érhető el, ezért
+		# JSON-ként adjuk át egy data attribútumban. A JSON_HEX_* flagek miatt a
+		# kimenet nem tartalmaz nyers " < > & ' karaktert, így bármilyen attribútum-
+		# escape mellett sértetlenül átér.
+		$t_strings = json_encode( array(
+			'hint_no_dnd'      => plugin_lang_get( 'dropzone_hint_no_dnd' ),
+			'uploading'        => plugin_lang_get( 'uploading' ),
+			'remove'           => plugin_lang_get( 'remove' ),
+			'remove_file'      => plugin_lang_get( 'remove_file' ),
+			'file_too_big'     => plugin_lang_get( 'file_too_big' ),
+			'type_disallowed'  => plugin_lang_get( 'type_disallowed' ),
+			'type_not_allowed' => plugin_lang_get( 'type_not_allowed' ),
+			'total_too_big'    => plugin_lang_get( 'total_too_big' ),
+		), JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS );
+
 		echo '<div id="ticketattach-wrap" class="col-md-12 col-xs-12">';
 		echo '<div class="space-10"></div>';
 		echo '<div class="widget-box widget-color-blue2">';
 		echo '<div class="widget-header widget-header-small">';
 		echo '<h4 class="widget-title lighter">';
-		echo '<i class="ace-icon fa fa-paperclip"></i> Fájl csatolása a jegyhez';
+		echo '<i class="ace-icon fa fa-paperclip"></i> ' . plugin_lang_get( 'attach_file_to_issue' );
 		echo '</h4>';
 		echo '</div>';
 		echo '<div class="widget-body"><div class="widget-main">';
@@ -110,19 +125,21 @@ class TicketAttachPlugin extends MantisPlugin {
 			. 'data-max-size="' . $t_max_size . '" '
 			. 'data-post-max="' . $t_post_max . '" '
 			. 'data-allowed="' . string_attribute( $t_allowed ) . '" '
-			. 'data-disallowed="' . string_attribute( $t_disallowed ) . '">';
+			. 'data-disallowed="' . string_attribute( $t_disallowed ) . '" '
+			. 'data-strings="' . string_attribute( $t_strings ) . '">';
 		echo '<i class="ace-icon fa fa-cloud-upload bigger-250 grey"></i>';
-		echo '<div class="ticketattach-hint">Húzd ide a feltöltendő fájlokat, vagy kattints a kiválasztáshoz</div>';
+		echo '<div class="ticketattach-hint">' . plugin_lang_get( 'dropzone_hint' ) . '</div>';
 		echo '<input type="file" name="ufile[]" multiple="multiple" '
-			. 'aria-label="Feltöltendő fájlok kiválasztása"/>';
+			. 'aria-label="' . string_attribute( plugin_lang_get( 'select_files' ) ) . '"/>';
 		echo '<div class="ticketattach-filelist"></div>';
 		echo '</div>';
 
 		echo '<div class="space-6"></div>';
-		echo '<input type="submit" class="btn btn-primary btn-sm btn-white btn-round ticketattach-submit" value="Feltöltés a jegyhez"/>';
+		echo '<input type="submit" class="btn btn-primary btn-sm btn-white btn-round ticketattach-submit" '
+			. 'value="' . string_attribute( plugin_lang_get( 'upload_button' ) ) . '"/>';
 		# A core saját helperje: ugyanúgy formáz, mint a beépített feltöltő, és a
 		# title-ben a pontos bájtszámot is megmutatja.
-		echo '<span class="small grey"> &#160; Maximális méret fájlonként: </span>';
+		echo '<span class="small grey"> &#160; ' . plugin_lang_get( 'max_size_per_file' ) . ' </span>';
 		print_max_filesize( $t_max_size );
 		echo '</form>';
 

@@ -1,0 +1,33 @@
+<?php
+# TicketAttach - English strings.
+#
+# The variable names follow the MantisBT plugin convention:
+# $s_plugin_<basename>_<key>, where the basename is the plugin directory name.
+#
+# Strings marked "(JS)" are handed to ticketattach.js through the data-strings
+# attribute; %s placeholders in them are substituted client-side.
+
+$s_plugin_TicketAttach_title       = 'Ticket Attach';
+$s_plugin_TicketAttach_description = 'Issue-level file upload (not tied to a note) in the issue view, following the 1.2.x behaviour. Drag & drop with client-side validation.';
+
+# Upload form
+$s_plugin_TicketAttach_attach_file_to_issue = 'Attach file to issue';
+$s_plugin_TicketAttach_dropzone_hint        = 'Drop the files to upload here, or click to select them';
+$s_plugin_TicketAttach_select_files         = 'Select files to upload';
+$s_plugin_TicketAttach_upload_button        = 'Upload to issue';
+$s_plugin_TicketAttach_max_size_per_file    = 'Maximum size per file:';
+
+# Upload result page
+$s_plugin_TicketAttach_upload_failed_title = 'Some files could not be attached';
+$s_plugin_TicketAttach_uploaded_count      = 'Files attached successfully: %s';
+$s_plugin_TicketAttach_failed_list_intro   = 'The following files could not be attached:';
+
+# Client-side strings (JS)
+$s_plugin_TicketAttach_dropzone_hint_no_dnd = 'Click to select the files to upload';
+$s_plugin_TicketAttach_uploading            = 'Upload in progress…';
+$s_plugin_TicketAttach_remove               = 'Remove';
+$s_plugin_TicketAttach_remove_file          = 'Remove: %s';
+$s_plugin_TicketAttach_file_too_big         = 'too big (max %s)';
+$s_plugin_TicketAttach_type_disallowed      = 'disallowed type (.%s)';
+$s_plugin_TicketAttach_type_not_allowed     = 'type not allowed (.%s)';
+$s_plugin_TicketAttach_total_too_big        = 'The selected files are too big together: %s — the server accepts at most %s in a single upload';

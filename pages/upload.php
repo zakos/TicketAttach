@@ -89,7 +89,7 @@ if( empty( $t_failed ) ) {
 
 # Legalább egy fájl elbukott: redirect helyett kiírjuk, mi ment át és mi nem,
 # hogy ne legyen néma részleges feltöltés.
-layout_page_header( lang_get( 'upload_file' ) );
+layout_page_header( plugin_lang_get( 'attach_file_to_issue' ) );
 layout_page_begin();
 
 echo '<div class="col-md-12 col-xs-12">';
@@ -97,13 +97,13 @@ echo '<div class="space-10"></div>';
 echo '<div class="widget-box widget-color-red">';
 echo '<div class="widget-header widget-header-small">';
 echo '<h4 class="widget-title lighter">';
-echo '<i class="ace-icon fa fa-exclamation-triangle"></i> Nem sikerült minden fájl csatolása';
+echo '<i class="ace-icon fa fa-exclamation-triangle"></i> ' . plugin_lang_get( 'upload_failed_title' );
 echo '</h4>';
 echo '</div>';
 echo '<div class="widget-body"><div class="widget-main">';
 
-echo '<p>Sikeresen csatolt fájlok: ' . (int)$t_added . '</p>';
-echo '<p>Az alábbi fájlokat nem sikerült csatolni:</p>';
+echo '<p>' . sprintf( plugin_lang_get( 'uploaded_count' ), (int)$t_added ) . '</p>';
+echo '<p>' . plugin_lang_get( 'failed_list_intro' ) . '</p>';
 echo '<ul>';
 foreach( $t_failed as $t_fail ) {
 	echo '<li><strong>' . string_display_line( $t_fail['name'] ) . '</strong> &ndash; '
