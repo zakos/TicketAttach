@@ -43,7 +43,7 @@ Tested with MantisBT 2.28.
 
 | | |
 |---|---|
-| MantisBT | 2.0.0 or newer (developed against 2.28) |
+| MantisBT | 2.26.0 or newer (developed against 2.28) — the top-level attachments row the plugin relies on was only reinstated in the core in 2.26 |
 | PHP | whatever your MantisBT instance requires |
 | Browser | `DataTransfer` support for per-file removal (all modern browsers) |
 
@@ -61,6 +61,9 @@ File uploads must be enabled in MantisBT itself
    ├── files/
    │   ├── ticketattach.css
    │   └── ticketattach.js
+   ├── lang/
+   │   ├── strings_english.txt
+   │   └── strings_hungarian.txt
    └── pages/
        └── upload.php
    ```
@@ -107,10 +110,16 @@ attachment binds to the issue itself.
 
 ### Localisation
 
-The user-facing strings are currently Hungarian, hard-coded in
-`TicketAttach.php` and `ticketattach.js`. To translate, edit those strings
-directly (or wire them up to MantisBT's `lang_get()` if you need real
-multi-language support).
+All user-facing strings live in `lang/`, following the MantisBT plugin
+convention (`$s_plugin_TicketAttach_<key>`). English and Hungarian ship with
+the plugin; to add a language, copy `lang/strings_english.txt` to
+`lang/strings_<language>.txt` and translate the values — MantisBT picks the
+file matching the user's language and falls back to English.
+
+The client-side strings are the same mechanism: `TicketAttach.php` passes them
+to the JavaScript as JSON in the dropzone's `data-strings` attribute, so there
+is nothing to translate inside `ticketattach.js`. `%s` in a string is a
+placeholder filled in at runtime.
 
 ### Metadata
 
@@ -119,7 +128,7 @@ multi-language support).
 | Name | Ticket Attach |
 | Version | 1.2.2 |
 | Author | Laurel Kft. |
-| Requires | MantisCore 2.0.0 |
+| Requires | MantisCore 2.26.0 |
 
 ---
 
@@ -161,7 +170,7 @@ MantisBT 2.28-cal tesztelve.
 
 | | |
 |---|---|
-| MantisBT | 2.0.0 vagy újabb (2.28-ra fejlesztve) |
+| MantisBT | 2.26.0 vagy újabb (2.28-ra fejlesztve) — a felső csatolmány-sort, amire a plugin épül, a core csak 2.26 óta rajzolja ki |
 | PHP | amit a MantisBT példány megkövetel |
 | Böngésző | `DataTransfer` támogatás a fájlonkénti törléshez (minden modern böngésző) |
 
@@ -180,6 +189,9 @@ A fájlfeltöltésnek engedélyezettnek kell lennie magában a MantisBT-ben
    ├── files/
    │   ├── ticketattach.css
    │   └── ticketattach.js
+   ├── lang/
+   │   ├── strings_english.txt
+   │   └── strings_hungarian.txt
    └── pages/
        └── upload.php
    ```
@@ -226,10 +238,16 @@ marad, és a csatolmány magához a jegyhez kötődik.
 
 ### Honosítás
 
-A felületi szövegek jelenleg magyarul, fixen be vannak égetve a
-`TicketAttach.php` és a `ticketattach.js` fájlokba. Fordításhoz ezeket a
-sztringeket kell átírni (vagy a MantisBT `lang_get()` mechanizmusára kötni, ha
-valódi többnyelvűség kell).
+Minden felületi szöveg a `lang/` könyvtárban van, a MantisBT plugin
+konvenciója szerint (`$s_plugin_TicketAttach_<kulcs>`). Angol és magyar
+alapból része a pluginnak; új nyelvhez másold a `lang/strings_english.txt`-t
+`lang/strings_<nyelv>.txt` néven, és fordítsd le az értékeket — a MantisBT a
+felhasználó nyelvéhez tartozó fájlt tölti be, hiány esetén az angolt.
+
+A kliensoldali szövegek ugyanezen a mechanizmuson mennek: a `TicketAttach.php`
+JSON-ként adja át őket a JavaScriptnek a dropzone `data-strings` attribútumában,
+tehát a `ticketattach.js`-ben nincs fordítanivaló. A sztringekben lévő `%s`
+futásidőben kitöltött helyőrző.
 
 ### Metaadatok
 
@@ -238,4 +256,4 @@ valódi többnyelvűség kell).
 | Név | Ticket Attach |
 | Verzió | 1.2.2 |
 | Szerző | Laurel Kft. |
-| Függőség | MantisCore 2.0.0 |
+| Függőség | MantisCore 2.26.0 |

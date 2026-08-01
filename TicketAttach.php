@@ -19,7 +19,10 @@ class TicketAttachPlugin extends MantisPlugin {
 		$this->description  = plugin_lang_get( 'description' );
 		$this->page         = '';
 		$this->version      = '1.2.2';
-		$this->requires     = array( 'MantisCore' => '2.0.0' );
+		# 2.26.0 a valódi alsó határ: a jegy tetején lévő "Csatolt fájlok" sort a core
+		# csak azóta rajzolja ki (bug_view_inc.php), márpedig a plugin egésze arra épül,
+		# hogy a bugnote_id = 0 csatolmány ott jelenjen meg.
+		$this->requires     = array( 'MantisCore' => '2.26.0' );
 		$this->author       = 'Laurel Kft.';
 		$this->contact      = '';
 		$this->url          = '';
@@ -28,6 +31,7 @@ class TicketAttachPlugin extends MantisPlugin {
 	function hooks() {
 		# Az EVENT_VIEW_BUG_EXTRA tisztán (a dobozokon kívül) hagy minket HTML-t kiírni;
 		# a tényleges pozíciót (a "Hibajegy részletei" doboz alá) a ticketattach.js állítja be.
+		# Az EVENT_LAYOUT_RESOURCES a lap fejlécébe teszi a stíluslapot.
 		return array(
 			'EVENT_VIEW_BUG_EXTRA'   => 'show_upload_form',
 			'EVENT_LAYOUT_RESOURCES' => 'add_resources',
