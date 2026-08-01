@@ -63,9 +63,20 @@ if( is_array( $t_files ) ) {
 			file_add( $f_bug_id, $t_file, 'bug' );
 			$t_added++;
 		} catch( Exception $e ) {
-			$t_failed[$t_file['name']] = $e->getMessage();
+			# Listát gyűjtünk, nem fájlnév szerinti tömböt: két azonos nevű, de
+			# különböző fájl is kiválasztható, és a kulcsos tárolás elnyelné az egyiket.
+			$t_failed[] = array(
+				'name'    => $t_file['name'],
+				'message' => $e->getMessage(),
+			);
 		}
 	}
+}
+
+# Egyetlen fájl sem érkezett (JS nélkül a küldés gomb nincs letiltva, így üresen is
+# elküldhető az űrlap). Redirect helyett szóljunk, különben néma no-op lenne.
+if( 0 == $t_added && empty( $t_failed ) ) {
+	trigger_error( ERROR_FILE_NO_UPLOAD_FAILURE, ERROR );
 }
 
 form_security_purge( 'plugin_ticketattach_upload' );
@@ -94,9 +105,9 @@ echo '<div class="widget-body"><div class="widget-main">';
 echo '<p>Sikeresen csatolt fájlok: ' . (int)$t_added . '</p>';
 echo '<p>Az alábbi fájlokat nem sikerült csatolni:</p>';
 echo '<ul>';
-foreach( $t_failed as $t_name => $t_message ) {
-	echo '<li><strong>' . string_display_line( $t_name ) . '</strong> &ndash; '
-		. string_display_line( $t_message ) . '</li>';
+foreach( $t_failed as $t_fail ) {
+	echo '<li><strong>' . string_display_line( $t_fail['name'] ) . '</strong> &ndash; '
+		. string_display_line( $t_fail['message'] ) . '</li>';
 }
 echo '</ul>';
 
