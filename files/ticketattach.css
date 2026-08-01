@@ -54,9 +54,11 @@
 	outline-offset: 2px;
 }
 
+/* A listán belüli kattintás nem nyitja a fájlválasztót, ne is ígérje a kurzor. */
 .ticketattach-filelist {
 	margin-top: 10px;
 	text-align: left;
+	cursor: default;
 }
 
 .ticketattach-fileitem {

@@ -180,11 +180,22 @@
 		// setTimeout-ban megy, hogy a böngésző még az eredeti submitot elküldje.
 		const form = wrap.querySelector('form');
 		if (form && submit) {
+			const submitLabel = submit.value;
+
 			form.addEventListener('submit', () => {
 				window.setTimeout(() => {
 					submit.disabled = true;
 					submit.value = 'Feltöltés folyamatban…';
 				}, 0);
+			});
+
+			// A Vissza gomb a bfcache-ből a MENTETT DOM-ot állítja vissza, benne a
+			// letiltott gombbal és a "folyamatban" felirattal - ez örökre ottragadna.
+			window.addEventListener('pageshow', (e) => {
+				if (e.persisted) {
+					submit.value = submitLabel;
+					render();
+				}
 			});
 		}
 
