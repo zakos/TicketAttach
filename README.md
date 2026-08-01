@@ -126,7 +126,7 @@ placeholder filled in at runtime.
 | | |
 |---|---|
 | Name | Ticket Attach |
-| Version | 1.2.2 |
+| Version | 1.3.0 |
 | Author | Laurel Kft. |
 | Requires | MantisCore 2.26.0 |
 
@@ -254,6 +254,6 @@ futásidőben kitöltött helyőrző.
 | | |
 |---|---|
 | Név | Ticket Attach |
-| Verzió | 1.2.2 |
+| Verzió | 1.3.0 |
 | Szerző | Laurel Kft. |
 | Függőség | MantisCore 2.26.0 |

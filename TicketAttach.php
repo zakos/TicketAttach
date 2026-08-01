@@ -18,7 +18,7 @@ class TicketAttachPlugin extends MantisPlugin {
 		$this->name         = plugin_lang_get( 'title' );
 		$this->description  = plugin_lang_get( 'description' );
 		$this->page         = '';
-		$this->version      = '1.2.2';
+		$this->version      = '1.3.0';
 		# 2.26.0 a valódi alsó határ: a jegy tetején lévő "Csatolt fájlok" sort a core
 		# csak azóta rajzolja ki (bug_view_inc.php), márpedig a plugin egésze arra épül,
 		# hogy a bugnote_id = 0 csatolmány ott jelenjen meg.
